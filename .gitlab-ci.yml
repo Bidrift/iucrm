@@ -1,0 +1,45 @@
+stages:
+  - lint
+  - build
+  - test
+  - report
+
+lint:
+  stage: lint
+  image: node:latest
+  script:
+    - npm install eslint eslint-plugin-vue --save-dev # Install Vue ESLint
+    - npx eslint --fix --ext .js,.vue src/
+
+build:
+  stage: build
+  script:
+    - apt-get update && apt-get install -y npm
+    - npm install react-scripts --save
+    - rm node_modules/ -rf
+    - npm install
+    - npm run dev
+    - pip3 install -r requirements.txt # Install Python dependencies for the build process
+
+test:
+  stage: test
+  before_script:
+    - apt-get update && apt-get install -y python3 python3-pip
+  script:
+    - python3 -m unittest src/sql-app/unit_tests/test_is_admin.py
+    - python3 -m unittest src/sql-app/unit_tests/test_first_login.py
+    - python3 -m unittest src/sql-app/unit_tests/test_id.py
+    - python3 -m unittest src/sql-app/unit_tests/test_email.py
+    - python3 -m unittest src/sql-app/unit_tests/test_full_name.py
+
+report:
+  stage: report
+  before_script:
+    - apt-get update && apt-get install -y python3 python3-pip
+    - apt-get install -y python3.11-venv
+    - python3 -m venv src/sql-app
+    - src/sql-app/bin/pip install pytest-cov
+    - src/sql-app/bin/pip install pylint
+  script:
+    - pytest --cov=my_module --cov-report=html
+    - pylint src/sql-app/*.py --output-format=html > linting_report.html

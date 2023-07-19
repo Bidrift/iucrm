@@ -1,0 +1,6 @@
+.env
+src/sql-app/__pycache__
+src/sql-app/mailingsys/__pycache__
+src/sql-app/routers/__pycache__
+src/sql-app/sqlsrc/__pycache__
+node_modules
